@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load ocl_tags %}
+
+{% block title %}{% trans "Delete Collection" %}{% endblock %}
+
+{% block content %}
+{% if collection.owner_type == 'Organization' %}
+	{% url 'collection-home' org=collection.owner collection=collection.id as collection_home_url %}
+{% else %}
+	{% url 'collection-home' user=collection.owner collection=collection.id as collection_home_url %}
+{% endif %}
+
+{% if  kwargs and "collection_version" in kwargs  and kwargs.collection_version != 'HEAD' %}
+    {% trans 'Retire Collection Version'  as delete_label%}
+{% else %}
+    {% trans  "Delete Collection" as delete_label %}
+ {% endif %}
+
+<h3>
+{% if  kwargs and "collection_version" in kwargs  and kwargs.collection_version != 'HEAD' %}
+    {% resource_owner_label collection %} / {% collection_label collection %} / [{% trans kwargs.collection_version %}]
+{% else %}
+    {% resource_owner_label collection %} / {% collection_label collection %}
+ {% endif %}
+
+
+</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1>{% trans delete_label %}</h1>
+            <form class="form-horizontal" id="collection_delete_form" method="post" action=".">
+                {% csrf_token %}
+                <div class="form-group">
+                    {% field_label 'Short Code' collection.short_code %}
+                    {% field_label 'Created By' collection.created_by %}
+                    {% field_label 'Created On' collection.created_on|smart_date %}
+                    {% field_label 'Owner' collection.owner %}
+                </div>
+                {% bootstrap_form form layout="horizontal" %}
+                {% buttons layout="horizontal" %}
+                    <button type="button" class="btn btn-primary delete-collection">
+                        {% if  kwargs and "collection_version" in kwargs  and kwargs.collection_version != 'HEAD' %}
+                            {% trans "Retire" %}
+                        {% else %}
+                            {% trans "Delete" %}
+                        {% endif %}
+                    </button>
+                    <a href="{{ collection_home_url }}" class="btn btn-default">{% trans "Cancel" %}</a>
+                {% endbuttons %}
+            </form>
+
+        </div> {# col-lg-12 #}
+    </div> {# row #}
+</div> {# container #}
+{% endblock %}

@@ -1,0 +1,82 @@
+{% load staticfiles i18n %}{% load account %}{% load url from future %}<!DOCTYPE html>
+<!-- Navbar -->
+<nav class="header navbar navbar-default" style="margin-bottom:0;">
+  <div class="container-fluid">
+
+    <!-- Logo and toggle icon -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#ocl-navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{% url 'home'%}"><img src="{% static 'images/ocl-logo.png' %}" height="40" width="62" alt="OCL Home" /></a>
+    </div>
+
+    <!-- Global search and nav menu -->
+    <div class="collapse navbar-collapse" id="ocl-navbar-collapse">
+      {% if not hide_nav_search %}
+      <form class="navbar-form navbar-left hidden-xs" role="search" action="{% url 'search'%}" method="get">
+        <div class="input-group input-group-sm">
+          <input name="q" id="global_search" type="text" class="form-control" placeholder="Search OCL" value="{{ search_query }}" />
+          <span class="input-group-btn" style="width:30px;"><button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button></span>
+        </div><!-- /.form-group -->
+        <div class="checkbox navbar-btn"><label for="exact_match_global_search" class="navbar-link" style="font-weight:300;"><input name="exact_match" type="checkbox" title="Exact match" {% if request.GET.exact_match %}checked="checked"{% endif %} id="exact_match_global_search" style="cursor:pointer;" />&nbsp;<span class="small">{% trans "Exact match" %}</span></label></div>
+        {% if request.GET.type %}<input type="hidden" name="type" value="{{ request.GET.type }}" />{% endif %}
+        {% if request.GET.debug %}<input type="hidden" name="debug" value="{{ request.GET.debug }}" />{% endif %}
+      </form><!-- /.navbar-form -->
+      {% endif %}
+
+      <ul class="nav navbar-nav navbar-right ocl-nav-menu">
+        <li><a href="{% url 'features' %}"><span class="hidden-sm hidden-md hidden-lg"><span class="glyphicon glyphicon-grain"></span>&nbsp;&nbsp;</span>{% trans "Features" %}</a></li>
+        {% if not hide_nav_search %}<li class="hidden-sm hidden-md hidden-lg"><a href="{% url 'search' %}"><span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;{% trans "Search" %}</a></li>{% endif %}
+        <li><a href="https://github.com/OpenConceptLab/ocl_web/wiki" target="_blank"><span class="hidden-sm hidden-md hidden-lg"><span class="glyphicon glyphicon-question-sign"></span>&nbsp;&nbsp;</span>{% trans "Help" %}</a></li>
+        {% if request.user.is_authenticated %}
+        <li><a href="{% url 'users:detail' request.user.username %}" title="User Profile: {{ user.email }}"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;{{ user.username }}</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="Create New Resource Menu"><span class="glyphicon glyphicon-plus"></span><span class="hidden-sm hidden-md hidden-lg">&nbsp;&nbsp;{% trans "New Resource" %}</span> <b class="caret"></b></a>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+            <li><a href="{% url 'org-new' %}"><span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;{% trans "New Organization" %}</a></li>
+          </ul>
+        </li>
+        <li><a href="{% url 'account_logout' %}" title="{% trans "Sign Out" %}"><span class="glyphicon glyphicon-log-out"></span><span class="hidden-sm hidden-md hidden-lg">&nbsp;&nbsp;{% trans "Sign Out" %}</span></a></li>
+        {% else %}
+        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="hidden-sm hidden-md hidden-lg"><span class="glyphicon glyphicon-log-in"></span>&nbsp;&nbsp;</span><b>{% trans "Sign In" %}</b> <span class="caret"></span></a>
+            <ul id="login-dp" class="dropdown-menu dropdown-menu-right" style="padding:14px 14px 0;min-width:250px;">
+              <li>
+                <div class="row">
+                  <div class="col-md-12" >
+                    <form class="form" role="form" method="post" action="{% url 'account_login' %}" accept-charset="UTF-8" id="login-nav">
+                      {% csrf_token %}
+                      <div class="form-group">
+                        <label class="small" for="id_login">{% trans "Username" %}<span class="required">*</span></label>
+                        <input type="text" class="form-control input-sm" id="id_login" name="login" placeholder="Username" required maxlength="100">
+                      </div>
+                      <div class="form-group">
+                        <label class="small" for="id_password">{% trans "Password" %}<span class="required">*</span></label>
+                        <input type="password" class="form-control input-sm" id="id_password" name="password" placeholder="Password" required>
+                        <div class="help-block text-right"><a href="{% url 'account_reset_password' %}"><small>{% trans "Forgot password?" %}</small></a></div>    
+                      </div>
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block btn-sm">{% trans "Sign In" %}</button>
+                        <input type="hidden" name="redirect_url" value="{{ request.path }}" />
+                      </div>
+                      <div class="checkbox input-sm">
+                        <label><input type="checkbox" id="id_remember" name="remember"> {% trans "Remember me" %}</label>
+                      </div>
+                    </form>
+                  </div><!-- /.col-md-12 -->
+                  <div class="bottom text-center" style="padding:14px;background-color:#eee;clear:both;border:1px solid #ccc;">
+                    {% trans "New user?" %} <a href="{% url 'account_signup' %}"><b>{% trans "Sign Up" %}</b></a>
+                  </div><!-- /.bottom -->
+                </div><!-- /.row -->
+              </li>
+            </ul>
+        </li>
+        {% endif %}
+      </ul><!-- /.nav -->
+    </div><!-- /.collapse -->
+
+  </div><!-- /.container-fluid -->
+</nav><!-- /.navbar -->

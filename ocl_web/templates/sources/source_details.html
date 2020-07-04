@@ -1,0 +1,46 @@
+{% extends "sources/source_base.html" %}
+{% load i18n %}
+{% load ocl_tags %}
+{% load bootstrap3 %}
+
+
+{% block tab-content %}
+<div class="container-fluid" style="margin-top: 20px;">
+<div class="row">
+
+    <!-- Source attributes -->
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title">Source Details</h3></div>
+            <div class="panel-body">
+                {% field_label 'Description' source.description %}
+                {% field_label 'Website' source.website url=True %}
+                {% field_label 'Public Access' source.public_access %}
+                <hr />
+                {% field_label 'Default Locale' source.default_locale %}
+                {% if source.supported_locales %}
+                    {% field_label 'Supported Locales' source.supported_locales|join:", " %}
+                {% else %}
+                    {% field_label 'Supported Locales' '' %}
+                {% endif %}
+                {% field_label 'Custom Validation Schema' source.custom_validation_schema %}
+                {% if source.extras and source.extras.items %}
+                    <hr />
+                    {% for k, v in source.extras.items %}
+                        {% field_label k v %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock tab-content %}
+
+
+{% block resource-debug %}
+<h4>URL kwargs</h4><pre>{{ kwargs|pprint }}</pre>
+<h4>URL Parameters</h4><pre>{{ url_params|pprint }}</pre>
+<h4>Source</h4><pre>{{ source|pprint }}</pre>
+{% endblock resource-debug %}

@@ -1,0 +1,54 @@
+{% extends "mappings/mapping_base.html" %}
+{% load i18n %}
+{% load ocl_tags %}
+{% load bootstrap3 %}
+
+
+{% block tab-content %}
+<div class="container" style="margin-top: 20px;">
+	<div class="row">
+
+		<!-- Mapping Details -->
+		<div class="col-md-8">
+			<div class="panel panel-default">
+                {% if not kwargs.mapping_version %}
+				    <div class="panel-heading"><h3 class="panel-title">Mapping Details</h3></div>
+                {% else %}
+                    <div class="panel-heading"><h3 class="panel-title">Mapping Version Details</h3></div>
+                {% endif %}
+				<div class="panel-body">
+					<div id="mapping_id">{% field_label 'ID' mapping.id %}</div>
+					{% field_label 'Retired' mapping.retired %}
+					{% field_label 'Map Type' mapping.map_type %}
+					<hr />
+					<div class="row" style="padding-top:5px;padding-bottom:5px;"><div class="col-md-3 field-label-key">From Concept</div><div class="col-md-9">{% mapping_from_concept_label mapping label_size="small" %}</div></div>
+					<div class="row" style="padding-top:5px;padding-bottom:5px;"><div class="col-md-3 field-label-key">To Concept</div><div class="col-md-9">{% mapping_to_concept_label mapping label_size="small" %}</div></div>
+					{% if mapping.external_id %}
+						<hr />
+						{% field_label 'External ID' mapping.external_id %}
+					{% endif %}
+					<hr />
+					{% field_label 'Updated By' mapping.updated_by %}
+					{% field_label 'Updated On' mapping.updated_at|smart_datetime %}
+					{% field_label 'Created By' mapping.created_by %}
+					{% field_label 'Created On' mapping.created_at|smart_datetime %}
+                	{% if mapping.extras and mapping.extras.items %}
+                		<hr />
+                		{% for k, v in mapping.extras.items %}
+                			{% field_label k v %}
+                		{% endfor %}
+                	{% endif %}
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+{% endblock tab-content %}
+
+
+{% block resource-debug %}
+<h4>URL kwargs</h4><pre>{{ kwargs|pprint }}</pre>
+<h4>URL Parameters</h4><pre>{{ url_params|pprint }}</pre>
+<h4>Mapping</h4><pre>{{ mapping|pprint }}</pre>
+{% endblock resource-debug %}

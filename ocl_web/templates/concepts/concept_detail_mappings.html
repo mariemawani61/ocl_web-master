@@ -1,0 +1,266 @@
+{# Concept "Mappings" section, list, add and edit #}
+{% load i18n %}
+{% load ocl_tags %}
+&nbsp;
+<div ng-controller="MappingController" >
+
+<div class="row">
+    <div class="col-md-2">
+        <span style="text-align:right;font-weight:bold;color:#999;">Mappings</span><br />
+    </div>
+    <div class="col-md-8">
+        <!-- Mappings here -->
+        {% verbatim %}
+        <div ng-repeat="q in item_list" class="list-group-item">
+            <button type="button" class="btn btn-link" ng-click="setEditedItem(q);startEditingItem();" ><span class="glyphicon glyphicon-pencil"></span>
+                </button>
+
+                {{ q.map_type }} : {{ q.to_concept_name }} :
+                (<a href="{{ q.to_source_url }}">{{ q.to_source_url }}</a>)
+                <span ng-if="q.to_concept_url"><a href="{{ q.to_concept_url }}">{{ q.to_concept_code }}</a></span>
+                <span ng-if="!q.to_concept_url">{{ q.to_concept_code }}</a></span>
+
+            <span ng-if="name.locale_preferred" class="glyphicon glyphicon-flag"></span>
+
+            <span class="glyphicon glyphicon-trash pull-right" ng-click="deleteItem(q)"></span>
+
+        {% endverbatim %}               
+            {% if request.GET.debug %}<br /><pre>{% verbatim %}{{ q }}{% endverbatim %}</pre>{% endif %}
+        </div>
+
+        <div ng-if="item_list.length === 0" class="panel panel-default"><div class="panel-body"><span class="small text-muted">No Mappings found</span></div></div>
+
+    </div>
+</div>
+
+<div class="row">&nbsp;</div>
+
+<div class="row">
+    <div class="col-md-2">
+        <span style="text-align:right;font-weight:bold;color:#999;">Inverse Mappings</span><br />
+    </div>
+    <div class="col-md-8">
+        <!-- Inverse Mappings here -->
+        {% verbatim %}
+        <div ng-repeat="q in inv_item_list" class="list-group-item">
+            <button type="button" class="btn btn-link" ng-click="setEditedItem(q);startEditingItem();" ><span class="glyphicon glyphicon-pencil"></span>
+                </button>
+
+                {{ q.map_type }} : {{ q.from_concept_name }} :
+                (<a href="{{ q.from_source_url }}">{{ q.from_source_url }}</a>)
+                <span ng-if="q.from_concept_url"><a href="{{ q.from_concept_url }}">{{ q.from_concept_code }}</a></span>
+                <span ng-if="!q.from_concept_url">{{ q.from_concept_code }}</a></span>
+
+            <span ng-if="name.locale_preferred" class="glyphicon glyphicon-flag"></span>
+
+            <span class="glyphicon glyphicon-trash pull-right" ng-click="deleteItem(q)"></span>
+
+        {% endverbatim %}               
+            {% if request.GET.debug %}<br /><pre>{% verbatim %}{{ q }}{% endverbatim %}</pre>{% endif %}
+        </div>
+
+        <!-- Inverse Mappings here -->
+        <div ng-if="inv_item_list.length === 0" class="panel panel-default"><div class="panel-body"><span class="small text-muted">No inverse mappings found</span></div></div>
+    </div>
+</div>
+
+<div class="row">
+&nbsp;
+</div>
+
+
+<div class="row">
+    <div class="col-md-2">
+        <span style="text-align:right;font-weight:bold;color:#999;">Linked Answers</span><br />
+        <span class="small text-muted">(This concept is a question with these answers)</span>
+    </div>
+    <div class="col-md-8">
+        <!-- Linked Answers here -->
+        {% verbatim %}
+        <div ng-repeat="q in q_and_a_list" class="list-group-item">
+            <button type="button" class="btn btn-link" ng-click="setEditedItem(q);startEditingItem();" ><span class="glyphicon glyphicon-pencil"></span>
+                </button>
+
+                {{ q.to_concept_name }} (<a href="{{ q.to_concept_url }}">{{ q.to_concept_code }}</a>)
+            <span ng-if="name.locale_preferred" class="glyphicon glyphicon-flag"></span>
+
+            <span class="glyphicon glyphicon-trash pull-right" ng-click="deleteItem(q)"></span>
+
+        {% endverbatim %}               
+            {% if request.GET.debug %}<br /><pre>{% verbatim %}{{ q }}{% endverbatim %}</pre>{% endif %}
+        </div>
+
+        <div ng-if="q_and_a_list.length === 0" class="panel panel-default"><div class="panel-body"><span class="small text-muted">No answers found</span></div></div>
+    </div>
+</div>
+
+<div class="row">
+&nbsp;
+</div>
+
+
+<div class="row">
+    <div class="col-md-2">
+        <span style="text-align:right;font-weight:bold;color:#999;">Linked Questions</span><br />
+        <span class="small text-muted">(This concept is an answer for these questions)</span>
+    </div>
+    <div class="col-md-8">
+        <!-- Linked Questions here -->
+        {% verbatim %}
+        <div ng-repeat="q in inv_q_and_a_list" class="list-group-item">
+            <button type="button" class="btn btn-link" ng-click="setEditedItem(q);startEditingItem();" ><span class="glyphicon glyphicon-pencil"></span>
+                </button>
+
+                {{ q.from_concept_name }} (<a href="{{ q.from_concept_url }}">{{ q.from_concept_url }}</a>)
+            <span ng-if="name.locale_preferred" class="glyphicon glyphicon-flag"></span>
+
+            <span class="glyphicon glyphicon-trash pull-right" ng-click="deleteItem(q)"></span>
+
+        {% endverbatim %}               
+            {% if request.GET.debug %}<br /><pre>{% verbatim %}{{ q }}{% endverbatim %}</pre>{% endif %}
+        </div>
+
+        <div ng-if="inv_q_and_a_list.length === 0" class="panel panel-default"><div class="panel-body"><span class="small text-muted">No questions found</span></div></div>
+    </div>
+</div>
+
+
+
+<div class="row"> {# add name form row #}
+    <div class="col-md-2">&nbsp;</div>
+    <div class="col-md-6">
+
+    {% include 'includes/ng_alerts_incl.html' %}
+
+    {# add form for mapping #}
+    <div ng-if="shouldShowCreatingItem()">
+
+        <button type="button" class="btn btn-link" ng-click="startCreatingItem()">
+            <span class="glyphicon glyphicon-plus"></span> {% trans 'Add Mapping' %}
+        </button>
+
+        <form name="map_add_form" ng-submit="addItem(newItem)" ng-show="isCreatingItem">
+        {% csrf_token %}
+
+            <div class="form-group required" ng-class="{ 'has-error': map_add_form.map_type.$invalid && !map_add_form.map_type.$pristine }">
+                <label class="control-label" for="id_map_type">Map Type</label>
+                {% verbatim %}
+                <input class="form-control" type="text" name="map_type" ng-model="newItem.map_type"  typeahead-editable="false"
+                    typeahead="map_type for map_type in map_types | filter:$viewValue | limitTo:8" >
+                <p class="help-block" ng-show="map_add_form.map_type.$invalid">Select a Mapping Type</p>
+                {% endverbatim %}
+            </div>
+
+            <div class="form-group required">
+                <label class="control-label" for="id_name_type">Source Type</label>
+                <div class="radio">
+                    <label>
+                        <input id="id_internal" required="required" name="source_type" type="radio" value="internal" ng_model="newItem.source_type">Internal Mapping</label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input id="id_external" required="required" name="source_type" type="radio" value="external" ng_model="newItem.source_type">External Mapping</label>
+                </div>
+            </div>
+
+            <div ng-show="newItem.source_type == 'external'">
+
+                <div class="form-group required">
+                    <label class="control-label" for="id_to_source_url">To Source URL</label>
+                    <input class="form-control" id="id_to_source_url" name="to_source_url" placeholder="To Source URL (e.g. /orgs/WHO/sources/IDC-10-WHO/)" title="" ng-required="newItem.source_type=='external'" type="text" ng-model="newItem.to_source_url" />
+                </div>
+
+                <div class="form-group required">
+                    <label class="control-label" for="id_to_concept_code">To Concept Code</label>
+                    <input class="form-control" id="id_to_concept_code" name="to_concept_code" placeholder="To Concept Code (e.g. A10.1)" ng-required="newItem.source_type=='external'" title="" type="text" ng-model="newItem.to_concept_code" />
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="id_to_concept_name">To Concept Name</label>
+                    <input class="form-control" id="id_to_concept_name" name="to_concept_name" placeholder="To Concept Name (e.g. Malaria)" title="" type="text" ng-model="newItem.to_concept_name" />
+                </div>
+
+            </div> {# external fields #}
+
+            <div ng-show="newItem.source_type == 'internal'">
+
+                <div class="form-group required">
+                    <label class="control-label" for="id_to_concept_url">To Concept URL</label>
+                    <input class="form-control" id="id_to_concept_code" name="to_concept_url" placeholder="To Concept URL (e.g. /orgs/WHO/sources/ICD-10-WHO/concepts/A10.1/)" ng-required="newItem.source_type=='internal'"  title="" type="text" ng-model="newItem.to_concept_url" />
+                </div>
+
+            </div> {# internal fields #}
+
+            <div class="form-group">
+                <label class="control-label" for="id_external_id">External ID</label>
+                <input class="form-control" id="id_external_id" name="external_id" placeholder="External ID" title="" type="text" ng-model="newItem.external_id" />
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{% trans 'Add Mapping' %}</button>
+                <button type="button" class="btn btn-default pull-right" ng-click="cancelCreatingItem()">{% trans 'Cancel' %}</button>
+            </div>
+
+        </form>
+
+    </div> {# if creating show #}
+
+    <div ng-if="shouldShowEditingItem()">
+
+        {% verbatim %}<h4>Editing Mapping</h4> {% endverbatim %}
+        <form name="mapping_edit_form" ng-submit="updateItem(editedItem)" ng-show="isEditingItem">
+        {% csrf_token %}
+
+            <div class="form-group required" ng-class="{ 'has-error': mapping_edig_form.map_type.$invalid && !mapping_edit_form.map_type.$pristine }">
+                <label class="control-label" for="id_map_type">Map Type</label>
+                {% verbatim %}
+                <input class="form-control" type="text" name="map_type" ng-model="editedItem.map_type"  typeahead-editable="false"
+                    typeahead="map_type for map_type in map_types | filter:$viewValue | limitTo:8" >
+                <p class="help-block" ng-show="mapping_edit_form.map_type.$invalid">Select a Mapping Type</p>
+                {% endverbatim %}
+            </div>
+
+            <div ng-show="editedItem.is_external">
+
+                <div class="form-group required">
+                    <label class="control-label" for="id_to_source_url">To Source URL</label>
+                    <input class="form-control" id="id_to_source_url" name="to_source_url" placeholder="To Source URL (e.g. /orgs/WHO/sources/IDC-10-WHO/)" title="" ng-required="editedItem.is_external" type="text" ng-model="editedItem.to_source_url" />
+                </div>
+
+                <div class="form-group required">
+                    <label class="control-label" for="id_to_concept_code">To Concept Code</label>
+                    <input class="form-control" id="id_to_concept_code" name="to_concept_code" placeholder="To Concept Code (e.g. A10.1)" ng-required="newItem.is_external" title="" type="text" ng-model="editedItem.to_concept_code" />
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="id_to_concept_name">To Concept Name</label>
+                    <input class="form-control" id="id_to_concept_name" name="to_concept_name" placeholder="To Concept Name (e.g. Malaria)" title="" type="text" ng-model="editedItem.to_concept_name" />
+                </div>
+
+            </div> {# external fields #}
+
+            <div ng-show="! editedItem.is_external">
+                <div class="form-group required">
+                    <label class="control-label" for="id_to_concept_url">To Concept URL</label>
+                    <input class="form-control" id="id_to_concept_code" name="to_concept_url" placeholder="To Concept URL (e.g. /orgs/WHO/sources/ICD-10-WHO/concepts/A10.1/)" ng-required="editedItem.source_type=='internal'"  title="" type="text" ng-model="editedItem.to_concept_url" />
+                </div>
+
+            </div> {# internal fields #}
+
+            <div class="form-group">
+                <label class="control-label" for="id_external_id">External ID</label>
+                <input class="form-control" id="id_external_id" name="external_id" placeholder="External ID" title="" type="text" ng-model="editedItem.external_id" />
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{% trans 'Update Mapping' %}</button>
+                <button type="button" class="btn btn-default pull-right" ng-click="cancelEditingItem()">{% trans 'Cancel' %}</button>
+             </div>
+
+        </form>
+
+    </div> {# editing mapping #}
+
+</div> {# form col6 #}
+</div> {# add form row for name #}
+</div> {# names controller #}

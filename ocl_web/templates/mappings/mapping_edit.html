@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load ocl_tags %}
+{% load bootstrap3 %}
+
+
+{% block title %}{{ mapping.owner }} / {{ mapping.source }} / {{ mapping.id }} / {% trans "Edit" %} - Open Concept Lab{% endblock title %}
+
+
+{% block content %}
+{% if source.owner_type == 'Organization' %}
+	{% url 'mapping-home' org=mapping.owner source=mapping.source mapping=mapping.id as mapping_url %}
+    {% url 'mapping-retire' org=source.owner source=source.id mapping=mapping.id as mapping_retire_url%}
+
+{% else %}
+	{% url 'mapping-home' user=mapping.owner source=mapping.source mapping=mapping.id as mapping_url %}
+    {% url 'mapping-retire' user=source.owner source=source.id mapping=mapping.id as mapping_retire_url%}
+
+{% endif %}
+
+<h3>
+	{% resource_owner_label mapping label_size='large' %} / {% generic_resource_label resource_type='source' resource_id=mapping.source resource_url=source_url label_size='large' %} / {% generic_resource_label resource_type='mapping' resource_id=mapping.id resource_name=mapping.map_type resource_url=mapping_home_url label_size='large' %}&nbsp;/&nbsp;{% trans 'Edit' %}
+	{% if not mapping.retired %}
+		&nbsp;&nbsp;&nbsp;<a href="{{ mapping_retire_url }} " title="Retire Mapping" class="small text-muted"><span class="glyphicon glyphicon-trash"></span></a>
+	{% endif %}
+</h3>
+
+<div class="container">
+	<div class="row" style="padding-top:15px;">
+
+		<!-- Edit Mapping Form -->
+		<div class="col-md-8">
+			<form class="form" name="mapping_form" autocomplete="off" method="post" action=".">
+				{% csrf_token %}
+
+				<div class="form-group">
+					<label class="control-label">Mapping Belongs To:</label>
+					<div style="margin-bottom:14px;">{% generic_resource_label resource_type='source' resource_id=source.id resource_name=source.name owner_type=source.owner_type owner_id=source.owner label_size='small' display_breadcrumb=True %}</div>
+				</div>
+
+				{% bootstrap_field form.from_concept_url %}
+				{% bootstrap_field form.map_type %}
+				{% bootstrap_field form.external_id %}
+				{% bootstrap_field form.is_internal_or_external %}
+
+				<div id="internal-mapping-form">
+					{% bootstrap_field form.internal_to_concept_url %}
+				</div>
+				<div id="external-mapping-form">
+					{% bootstrap_field form.external_to_source_url %}
+					{% bootstrap_field form.external_to_concept_code %}
+					{% bootstrap_field form.external_to_concept_name %}
+				</div>
+                {% bootstrap_field form.update_comment %}
+				{% buttons %}
+					<button type="submit" class="btn btn-primary">{% trans "Update Mapping" %}</button>
+					<a href="{{ mapping_url }}" class="btn btn-default">{% trans "Cancel" %}</a>
+				{% endbuttons %}
+			</form>
+		</div>
+
+
+		<!-- Tip Panel -->
+		<div class="col-md-4">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h3 class="panel-title">Tip</h3></div>
+				<div class="panel-body">
+					<p class="small">A <strong>Mapping</strong> represents a relationship between two concepts, such as an a "Same As" identity map across sources, or a parent/child relationship between two concepts in the same source. There are two types of mappings:</p>
+					<ul><li class="small">An <em>Internal Mapping</em> points to a concept that is defined in OCL (e.g. CIEL).
+						<li class="small">An <em>External Mapping</em> points to a concept that is <em>not</em> defined in OCL, such as SNOMED-CT. However, the source must exist in OCL with its <code>source_type</code> attribute set to "External".</li>
+					</ul>
+					<p class="small">Edits that substantively change the meaning of a mapping are discouraged. For example, instead of changing the "map_type" or the "from" or "to" concept, consider retiring this mapping and creating a new mapping.</p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+{% if request.GET.debug %}
+<div class="container" style="margin-top: 30px;">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Debug</h4></div>
+        <div class="panel-body" style="min-height:140px;">
+        {% block resource-debug %}
+        <h4>Mapping</h4><pre>{{ mapping|pprint }}</pre>
+        {% endblock resource-debug %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock content %}
+
+
+{% block extrajavascript %}
+<script>
+$(document).ready(function(){
+	$('[data-toggle="tooltip"]').tooltip();
+	function show_hide_mapping_fields(){
+		if($('input:radio[name="is_internal_or_external"]:checked').val() == "External") {
+			$('div#internal-mapping-form div.form-group').hide();
+			$('div#external-mapping-form div.form-group').show();
+		} else if($('input:radio[name="is_internal_or_external"]:checked').val() == "Internal") {
+			$('div#internal-mapping-form div.form-group').show();
+			$('div#external-mapping-form div.form-group').hide();
+		} else {
+			$('div#internal-mapping-form div.form-group').hide();
+			$('div#external-mapping-form div.form-group').hide();
+		}
+	}
+	show_hide_mapping_fields();
+	$('#id_is_internal_or_external input[type="radio"]').click(function (){ show_hide_mapping_fields(); });
+});
+</script>
+{% endblock extrajavascript %}
+

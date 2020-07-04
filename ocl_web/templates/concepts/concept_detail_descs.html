@@ -1,0 +1,167 @@
+{# Concept "description" section, list, add and edit #}
+{% load i18n %}
+{% load ocl_tags %}
+
+<div ng-controller="ConceptDescriptionController" >
+
+<div class="row" >
+    <div class="col-md-2" style="text-align:right;font-weight:bold;color:#999;">
+        Descriptions
+    </div>
+    <div class="col-md-8">
+
+    {% if_can_change concept %}
+
+        <ul class="list-group">
+
+            {% verbatim %}
+            <li ng-repeat="desc in item_list" class="list-group-item">
+                <button type="button" class="btn btn-link" ng-click="setEditedItem(desc);startEditingItem();" ><span class="glyphicon glyphicon-pencil"></span></button>
+                {{ desc.description }}
+                <span ng-show="desc.description_type" class="small text-muted">&nbsp;&nbsp;<span class="label label-default">{{ desc.description_type }}</span></span>
+                <span ng-show="desc.locale" class="small text-muted"><em>&nbsp;&nbsp;[{{ desc.locale }}]</em></span>
+                <span ng-if="desc.locale_preferred" class="glyphicon glyphicon-flag"></span>
+                <span class="glyphicon glyphicon-trash pull-right" ng-click="deleteItem(desc)"></span>
+            {% endverbatim %}
+                {% if desc.locale_preferred %}&nbsp;<span id="locale-preferred-desc-tooltip{{ forloop.counter }}" data-toggle="tooltip" data-placement="right" title="Locale preferred concept"><span class="glyphicon glyphicon-flag"></span></span>{% endif %}
+            {% verbatim %}
+                <span ng-show="debug"><pre>{{ desc }}</pre></span>
+            {% endverbatim %}
+            </li>
+        </ul>
+
+    {% else %}
+
+        <ul class="list-group">
+            {% verbatim %}
+            <li ng-repeat="desc in item_list" class="list-group-item">
+                {{ desc.description }}
+                <span ng-show="desc.description_type" class="small text-muted">&nbsp;&nbsp;<span class="label label-default">{{ desc.description_type }}</span></span>
+                <span ng-show="desc.locale" class="small text-muted"><em>&nbsp;&nbsp;[{{ desc.locale }}]</em></span>
+                <span ng-if="desc.locale_preferred" class="glyphicon glyphicon-flag"></span>
+            {% endverbatim %}
+                {% if desc.locale_preferred %}&nbsp;<span id="locale-preferred-desc-tooltip{{ forloop.counter }}" data-toggle="tooltip" data-placement="right" title="Locale preferred concept"><span class="glyphicon glyphicon-flag"></span></span>{% endif %}
+            {% verbatim %}
+                <span ng-show="debug"><pre>{{ desc }}</pre></span>
+            {% endverbatim %}
+            </li>
+        </ul>
+
+    {% endif_can_change concept %}
+
+    </div> {# 9 #}
+</div> {# outer row#}
+
+
+<div class="row">
+<div class="col-md-2">&nbsp;</div>
+<div class="col-md-6">
+
+    {% include 'includes/ng_alerts_incl.html' %}
+
+    {% if_can_change concept %}
+
+    <!-- CREATING -->
+    <div ng-if="shouldShowCreatingItem()">
+
+        <button type="button" class="btn btn-link" ng-click="startCreatingItem()">
+            <span class="glyphicon glyphicon-plus"></span>
+            {% trans 'Add Concept Description' %}
+        </button>
+
+        <div>
+          {% verbatim %}{{ message }}{% endverbatim %}
+        </div>
+
+        <form name="desc_add_form" ng-submit="addItem(newItem)" ng-show="isCreatingItem">
+        {% csrf_token %}
+
+            <div class="form-group required">
+                <label class="control-label" for="id_description">Concept Description</label>
+                <input class="form-control" id="id_desription" name="description" placeholder="Name" required="required" title="" type="text" ng-model="newItem.description" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="id_description_type">Concept Description Type</label>
+                <input class="form-control" id="id_desription_type" name="description_type" placeholder="Description type" title="" type="text" ng-model="newItem.description_type" />
+            </div>
+
+            <div class="form-group required" ng-class="{ 'has-error': desc_add_form.locale.$invalid && !desc_add_form.locale.$pristine }">
+                <label class="control-label" for="id_locale">Concept Description Locale</label>
+                {% verbatim %}
+                <input class="form-control" type="text" name="locale" ng-model="newItem.locale"  typeahead-editable="false" typeahead="locale.name for locale in locale_choices | filter:$viewValue | limitTo:8" >
+                <p class="help-block" ng-show="desc_add_form.locale.$invalid">Select a locale</p>
+                {% endverbatim %}
+            </div>
+
+            <div class="form-group required">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="preferred_locale" ng-model="newItem.locale_preferred">{% trans 'Locale Preferred' %}</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="id_external_id">External ID</label>
+                <input class="form-control" id="id_external_id" name="external_id" placeholder="External ID" title="" type="text" ng-model="newItem.external_id" />
+            </div>
+
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{% trans 'Add Concept Description' %}</button>
+                <button type="button" class="btn btn-default pull-right" ng-click="cancelCreatingItem()">{% trans 'Cancel' %}</button>
+            </div>
+
+        </form>
+    </div> {# if creating show #}
+
+
+    <!-- EDITING -->
+    <div ng-if="shouldShowEditingItem()">
+
+         {% verbatim %}<h4>Editing Concept Description</h4> {% endverbatim %}
+        <form name="desc_edit_form" ng-submit="updateItem(editedItem)" ng-show="isEditingItem">
+        {% csrf_token %}
+
+            <div class="form-group required">
+                <label class="control-label" for="id_description">Concept Description</label>
+                <input class="form-control" id="id_description" name="description" placeholder="Description" required="required" title="" type="text" ng-model="editedItem.description" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="id_description_type">Concept Description Type</label>
+                <input class="form-control" id="id_description_type" ame="description_type" placeholder="Description type" title="" type="text" ng-model="editedItem.description_type" />
+            </div>
+
+            <div class="form-group required" ng-class="{ 'has-error': desc_edit_form.locale.$invalid && !desc_edit_form.locale.$pristine }">
+                <label class="control-label" for="id_locale">Concept Description Locale</label>
+                {% verbatim %}
+                <input class="form-control" type="text" name="locale" ng-model="editedItem.locale"  typeahead-editable="false" typeahead="locale.name for locale in locale_choices | filter:$viewValue | limitTo:8" >
+                <p class="help-block" ng-show="desc_edit_form.locale.$invalid">Select a locale</p>
+                {% endverbatim %}
+            </div>
+
+            <div class="form-group required">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="preferred_locale" ng-model="editedItem.locale_preferred">{% trans 'Locale Preferred' %}</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="id_external_id">External ID</label>
+                <input class="form-control" id="id_external_id" name="external_id" placeholder="External ID" title="" type="text" ng-model="editedItem.external_id" />
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">{% trans 'Update Concept Description' %}</button>
+              <button type="button" class="btn btn-default pull-right" ng-click="cancelEditingItem()">{% trans 'Cancel' %}</button>
+            </div>
+
+        </form>
+    </div> {# editing #}
+
+{% endif_can_change concept %}
+
+</div> {# col6 for form for description #}
+
+</div> {# row #}
+</div> {# description controller #}

@@ -1,0 +1,80 @@
+{% extends "orgs/org_base.html" %}
+{% load i18n %}
+{% load ocl_tags %}
+{% load bootstrap3 %}
+
+
+{% block tab-content %}
+<div class="container-fluid" style="margin-top: 20px;">
+	<div class="row">
+
+		<!-- Org attributes -->
+		<div class="col-md-8">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h3 class="panel-title">Organization Details</h3></div>
+				<div class="panel-body">
+					{% field_label 'Company' org.company %}
+					{% field_label 'Website' org.website url=True %}
+					{% field_label 'Public Access' org.public_access %}
+					{% if org.extras and org.extras.items %}
+						<hr />
+						{% for k, v in org.extras.items %}
+							{% field_label k v %}
+						{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		<!-- Org members -->
+		{# TODO: Change this to a django form to add/remove org members #}
+		<div class="col-md-4">
+			<div class="panel panel-default" ng-app="ConceptApp" ng-controller="MemberRemoveController">
+				<div class="panel-heading"><h3 class="panel-title">Members</h3></div>
+				<div class="panel-body">
+					{% include 'includes/ng_alerts_incl.html' %}
+					{% if_can_change org %}
+						<a href="{% url 'org-member-add' org.id %}"><span class="glyphicon glyphicon-plus"></span> {% trans "Add Member" %}</a>
+					{% endif_can_change %}
+                    {% for member in members %}
+							<div class="label-container">
+								{% user_label member label_size='small' %}
+                                {% if_can_change org %}
+                                    <button type="button" class="btn btn-link" data-org='{{org.id}}' ng-click="removeMember('{{org.id}}', '{{member.username}}')" ><span class="glyphicon glyphicon-trash"></span></button>
+							    {% endif_can_change %}
+                            </div>
+							{% if request.GET.debug %}<pre>{{ member|pprint }}</pre>{% endif %}
+						{% empty %}
+							No members.
+                    {% endfor %}
+
+				</div>
+			</div> <!-- /panel -->
+		</div> <!-- /col-md-4 -->
+
+{% verbatim %}
+<script type="text/ng-template" id="myModalContent.html">
+	<div class="modal-header">
+		<h3 class="modal-title">Confirm Remove</h3>
+	</div>
+	<div class="modal-body">
+		Are you sure you want to remove <strong>[[ username ]]</strong> from <strong>[[ org ]]</strong>?
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="$close()">OK</button>
+		<button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+	</div>
+</script>
+{% endverbatim %}
+{% csrf_token %}
+
+	</div>
+</div>
+{% endblock tab-content %}
+
+
+{% block resource-debug %}
+<h4>URL Parameters</h4><pre>{{ url_params|pprint }}</pre>
+<h4>Organization</h4><pre>{{ org|pprint }}</pre>
+<h4>Members</h4><pre>{{ members|pprint }}</pre>
+{% endblock resource-debug %}

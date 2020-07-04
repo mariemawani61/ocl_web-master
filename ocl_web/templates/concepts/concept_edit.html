@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load ocl_tags %}
+
+{# Check user permissions #}
+
+
+{% block title %}{% trans "Update Concept" %}{% endblock %}
+
+
+{% block content %}
+{% if concept.owner_type == 'Organization' %}
+	{% url 'concept-home' org=concept.owner source=concept.source concept=concept.id as concept_url %}
+    {% url 'concept-retire' org=source.owner source=source.id concept=concept.id as concept_retire_url%}
+{% else %}
+	{% url 'concept-home' user=concept.owner source=concept.source concept=concept.id as concept_url %}
+    {% url 'concept-retire' user=source.owner source=source.id concept=concept.id as concept_retire_url%}
+{% endif %}
+
+<h3>
+	{% resource_owner_label concept %} / {% source_label source %} / {% concept_label concept %} / {% trans 'Update Concept' %}
+	{% if not concept.retired %}
+		&nbsp;&nbsp;&nbsp;<a href="{{ concept_retire_url }}" title="Retire Concept" class="small text-muted"><span class="glyphicon glyphicon-trash"></span></a>
+	{% endif %}
+</h3>
+
+&nbsp;
+<div class="container">
+	<div class="row">
+
+		<!-- Form Panel -->
+		<div class="col-md-8">
+			<form class="form" name="concept_form" autocomplete="off" method="post" action=".">
+				{% csrf_token %}
+				{% bootstrap_form form %}
+        <concept-name-synonym names="{{ concept.names }}"
+                              types="{{ name_types }}"
+                              default-locale="'{{ source.default_locale }}'"
+                              locales="{{ locales }}"></concept-name-synonym>
+        <concept-description descriptions="{{ concept.descriptions }}"
+                             types="{{ description_types }}"
+                              default-locale="'{{ source.default_locale }}'"
+                             locales="{{ locales }}"></concept-description>
+        <custom-attributes extras="{{ extras }}"></custom-attributes>
+				{% buttons %}
+          <div class="col-md-12">
+            <button id="update-concept" type="submit" class="btn btn-primary">{% trans "Update Concept" %}</button>
+            <a href="{{ concept_url }}" id="cancel-update" class="btn btn-default">{% trans "Cancel" %}</a>
+          </div>
+				{% endbuttons %}
+			</form>
+		</div>
+
+		<!-- Tip Panel -->
+		<div class="col-md-4">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h3 class="panel-title">Tip</h3></div>
+				<div class="panel-body">
+					<p class="small">All changes to concepts are saved to the <strong>Concept History</strong> page,
+						so that you can always refer back to an older version of a concept.</p>
+					<p class="small">Edits that substantively change the meaning of a concept are discouraged. For example,
+						instead of changing the concept class or datatype, consider creating a new concept.</p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% load ocl_tags %}
+{% if concept.owner_type == 'Organization' %}
+	{% url 'concept-home' org=concept.owner source=concept.source concept=concept.id as concept_url %}
+{% else %}
+	{% url 'concept-home' user=concept.owner source=concept.source concept=concept.id as concept_url %}
+{% endif %}
+{% generic_resource_label resource_type='concept' resource_id=concept.id resource_url=concept_url resource_retired=concept.retired label_size=label_size %}

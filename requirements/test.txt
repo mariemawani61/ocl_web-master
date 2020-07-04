@@ -1,0 +1,4 @@
+# Test dependencies go here.
+-r local.txt
+# For the persistance stores
+psycopg2==2.5.2

@@ -1,0 +1,2 @@
+{# angular alert box #}
+<alert ng-repeat="alert in alerts" type="[[alert.type]]" close="alerts.splice($index, 1)">[[ alert.msg ]]</alert>

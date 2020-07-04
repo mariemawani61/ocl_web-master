@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+
+
+{% block title %}{% trans "New Organization" %} - Open Concept Lab{% endblock %}
+
+
+{% block content %}
+<h1><span class="glyphicon glyphicon-home" style="color:#e5e5e5;"></span>&nbsp;&nbsp;New Organization</h1>
+&nbsp;
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-8">
+
+			<form role="form" method="post" action=".">
+				{% csrf_token %}
+				{% bootstrap_form form %}
+				{% buttons %}
+					<button type="submit" class="btn btn-primary">{% trans "Create Organization" %}</button>
+					<a href="{% url 'search' %}" class="btn btn-default">{% trans "Cancel" %}</a>
+				{% endbuttons %}
+			</form>
+
+		</div> <!-- /col-md-8 -->
+	</div> <!-- /row -->
+</div> <!-- /container -->
+{% endblock content %}

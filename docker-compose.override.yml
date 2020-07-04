@@ -1,0 +1,31 @@
+version: '2.1'
+services:
+  db_web:
+    ports:
+      - "5432:5432"
+  web_dependencies:
+    image: openconceptlab/oclweb-dependencies:dev
+    build:
+      context: .
+      dockerfile: Dockerfile-dependencies
+  web:
+    image: openconceptlab/oclweb:dev
+    depends_on:
+      - db_web
+      - web_dependencies
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+      - .:/code
+      - /code/node_modules
+      - /code/backups
+      - .pycharm_helpers:/root/.pycharm_helpers
+    ports:
+      #ports for debugging
+      - "7001:7001"
+      - "2001:22"
+    environment:
+      - SSH=true
+      - ENVIRONMENT=${ENVIRONMENT-local}
+      - IMPORT_DEMO_DATA=${IMPORT_DEMO_DATA-true}

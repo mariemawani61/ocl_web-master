@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load ocl_tags %}
+
+
+{% block title %}{% trans "New Source" %} - Open Concept Lab{% endblock %}
+
+
+{% block content %}
+{% if org %}
+	{% url 'org-sources' org=org.id as owner_url %}
+{% else %}
+	{% url 'users:detail' username=ocl_user.username as owner_url %}
+{% endif %}
+
+<h3>
+	{% if org %}{% org_label org %}{% else %}{% user_label ocl_user %}{% endif %}
+	&nbsp;/&nbsp;
+	<span class="glyphicon glyphicon-list" style="color:#e5e5e5;"></span>&nbsp;&nbsp;{% trans 'New Source' %}
+</h3>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-8">
+
+			<form class="form-horizontal" id="source_create_form" method="post" action=".">
+				{% csrf_token %}
+				<div class="form-group required"><label class="col-md-2 control-label">Owner</label>
+					<div class="col-md-4" style="padding-top:6px;">
+						{% if org %}{% org_label org label_size='small' %}{% else %}{% user_label ocl_user label_size='small' %}{% endif %}
+					</div>
+				</div>
+				{% bootstrap_form form %}
+				{% buttons %}
+					<button type="submit" class="btn btn-primary">{% trans "Create Source" %}</button>
+					<a href="{{ owner_url }}" class="btn btn-default">{% trans "Cancel" %}</a>
+				{% endbuttons %}
+			</form>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %}

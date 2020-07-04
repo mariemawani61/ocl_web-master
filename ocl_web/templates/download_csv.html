@@ -1,0 +1,49 @@
+{% if versions %}
+	{% if request.user.is_authenticated and results %}
+		<div class="btn-group pull-right small" style="margin-top:-7px;">
+			<a class="btn btn-link btn-sm download-csv pull-right">
+				<span class="glyphicon glyphicon-download-alt"></span>
+				<span style="font-weight:300;" class="small">CSV</span>
+			</a>
+		</div>
+	{% endif %}
+{% elif type == 'search' %}
+	{% if request.user.is_authenticated and results %}
+		<input id='download-origin' type="hidden" value="{{ type }}">
+		<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="glyphicon glyphicon-download-alt"></span> <span class="caret"></span></button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a class="download-csv"><span class="glyphicon glyphicon-file"></span> Formatted CSV</a></li>
+		</ul>
+	{% endif %}
+{% elif type == 'global_search' %}
+	{% if request.user.is_authenticated and results %}
+	<input id='download-origin' type="hidden" value="{{ type }}">
+	<div class="hidden-xs btn-group pull-right" style="margin-right:4px;">
+		<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="glyphicon glyphicon-download-alt"></span> <span class="caret"></span></button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a class="download-csv"><span class="glyphicon glyphicon-file"></span> Formatted CSV</a></li>
+		</ul>
+	</div>
+	{% endif %}
+{% elif type == 'repository_search' %}
+	{% if request.user.is_authenticated and results %}
+	{# download-origin value is left intentionally blank which causes JS to infer resource type from the html page #}
+	<input id='download-origin' type="hidden" value>
+	<div class="hidden-xs btn-group pull-right" style="margin-right:4px;">
+		<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="glyphicon glyphicon-download-alt"></span> <span class="caret"></span></button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a class="download-csv"><span class="glyphicon glyphicon-file"></span> Formatted CSV</a></li>
+		</ul>
+	</div>
+	{% endif %}
+{% else %}
+	{% if request.user.is_authenticated and results %}
+		<input type="hidden" value="{{ type }}">
+		<div class="btn-group pull-left small" style="margin-top:-2px">
+			<a class="btn btn-link btn-sm download-csv">
+				<span class="glyphicon glyphicon-download-alt"></span>
+				<span style="font-weight:300;" class="small">CSV</span>
+			</a>
+		</div>
+	{% endif %}
+{% endif %}

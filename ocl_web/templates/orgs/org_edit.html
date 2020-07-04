@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load ocl_tags %}
+
+{% block title %}Update Organization{% endblock %}
+
+
+{% block content %}
+<h3>{% org_label org %} / &nbsp;&nbsp;Update Organization</h3>
+&nbsp;
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-8">
+
+			<form role="form" method="post" action=".">
+				{% csrf_token %}
+				{% bootstrap_form form %}
+				{% buttons %}
+					<button type="submit" class="btn btn-primary">{% trans "Update" %}</button>
+					<a href="{% url 'org-home' org=org.id %}" class="btn btn-default">{% trans "Cancel" %}</a>
+				{% endbuttons %}
+			</form>
+
+		</div> <!-- /col-md-8 -->
+	</div> <!-- /row -->
+</div> <!-- /container -->
+{% endblock content %}

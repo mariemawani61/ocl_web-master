@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap3 %}
+{% load ocl_tags %}
+
+{% block title %}{{ source.owner }} / {{ source.id }} - Open Concept Lab{% endblock title %}
+
+{% block content-no-container %}
+
+{% block resource-header %}
+{% if source.owner_type == 'Organization' %}
+	{% url 'source-edit' org=source.owner source=source.id as source_edit_url %}
+{% else %}
+	{% url 'source-edit' user=source.owner source=source.id as source_edit_url %}
+{% endif %}
+
+<header class="resource-header resource-header-source">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="resource-header-icon hidden-xs"><span class="glyphicon glyphicon-th-list"></span></div>
+				<div class="resource-header-label">
+					<div class="label-container">
+						{% resource_owner_label source %} / {% source_label source %}
+						{% if kwargs and "source_version" in kwargs %}<span class="small" title="Source Version ID">[ {{ kwargs.source_version }} ]</span>{% endif %}
+						{% if  not kwargs or not "source_version" in kwargs  or kwargs.source_version == 'HEAD' %}
+						{% if_can_change source %}
+							<a href="{{ source_edit_url }}" class="small text-muted" id="edit-source" title="Edit Source"><span class="glyphicon glyphicon-cog"></span></a>
+						{% endif_can_change source %}
+            {% endif %}
+					</div>
+					<h4>{{ source.full_name }}</h4>
+					<p>
+						<em>Source Type:</em> {{ source.source_type }}<br />
+						<span class="text-muted small">
+							<span class="glyphicon glyphicon-calendar"></span>&nbsp;&nbsp;Created on {{ source.created_on|smart_date }} by {{ source.created_by }}&nbsp;&nbsp;&nbsp;&nbsp;
+							<span class="glyphicon glyphicon-calendar"></span>&nbsp;&nbsp;Last updated {{ source.updated_on|smart_date }} by  by {{ source.updated_by }}
+							{% if source.external_id %}&nbsp;&nbsp;<span class="glyphicon glyphicon-circle-arrow-right"></span> External ID: {{ source.external_id }}{% endif %}
+						</span>
+						<span class="resource-privacy">{% if source.public_access == 'View' or org.public_access = 'Edit' %}public{% else %}private{% endif %}</span>
+                	</p>
+				</div> <!-- /resource-header-label -->
+			</div> <!-- /col-md-12 -->
+		</div> <!-- /row -->
+	</div> <!-- /container -->
+</header>
+{% endblock resource-header %}
+
+
+{% block resource-tabs %}
+{% if source.owner_type == 'Organization' %}
+	{% if kwargs and "source_version" in kwargs %}
+		{% url 'source-version-concepts' org=source.owner source=source.id source_version=kwargs.source_version as source_concepts_url %}
+		{% url 'source-version-mappings' org=source.owner source=source.id source_version=kwargs.source_version as source_mappings_url %}
+	{% else %}
+		{% url 'source-concepts' org=source.owner source=source.id as source_concepts_url %}
+		{% url 'source-mappings' org=source.owner source=source.id as source_mappings_url %}
+	{% endif %}
+	{% url 'source-extrefs' org=source.owner source=source.id as source_extrefs_url %}
+	{% url 'source-details' org=source.owner source=source.id as source_details_url %}
+	{% url 'source-versions' org=source.owner source=source.id as source_versions_url %}
+	{% url 'source-about' org=source.owner source=source.id as source_about_url %}
+{% else %}
+	{% if kwargs and "source_version" in kwargs %}
+		{% url 'source-version-concepts' user=source.owner source=source.id source_version=kwargs.source_version as source_concepts_url %}
+		{% url 'source-version-mappings' user=source.owner source=source.id source_version=kwargs.source_version as source_mappings_url %}
+	{% else %}
+		{% url 'source-concepts' user=source.owner source=source.id as source_concepts_url %}
+		{% url 'source-mappings' user=source.owner source=source.id as source_mappings_url %}
+	{% endif %}
+	{% url 'source-extrefs' user=source.owner source=source.id as source_extrefs_url %}
+	{% url 'source-details' user=source.owner source=source.id as source_details_url %}
+	{% url 'source-versions' user=source.owner source=source.id as source_versions_url %}
+	{% url 'source-about' user=source.owner source=source.id as source_about_url %}
+{% endif %}
+<div class="container-fluid">
+    <ul class="nav nav-tabs">
+    	{% if source.source_type != 'External' %}
+	        <li role="presentation" {% if selected_tab == "Concepts" %}class="active"{% endif %}><a href="{{ source_concepts_url }}">Concepts</a></li>
+        	<li role="presentation" {% if selected_tab == "Mappings" %}class="active"{% endif %}><a href="{{ source_mappings_url }}">Mappings</a></li>
+        {% else %}
+	        <li role="presentation" {% if selected_tab == "External References" %}class="active"{% endif %}><a href="{{ source_extrefs_url }}">External References</a></li>
+        {% endif %}
+        <li role="presentation" {% if selected_tab == "Details" %}class="active"{% endif %}><a href="{{ source_details_url }}">Details</a></li>
+        <li role="presentation" {% if selected_tab == "Versions" %}class="active"{% endif %}><a href="{{ source_versions_url }}">Versions</a></li>
+        <li role="presentation" {% if selected_tab == "About" %}class="active"{% endif %}><a href="{{ source_about_url }}">About</a></li>
+    </ul>
+</div>
+{% endblock resource-tabs %}
+
+
+{% block tab-content %}
+{% endblock tab-content %}
+
+
+{% if request.GET.debug %}
+<div class="container" style="margin-top: 30px;">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4 class="panel-title">Debug</h4></div>
+        <div class="panel-body" style="min-height:140px;">
+        {% block resource-debug %}
+            <h4>Debug Content</h4>
+        {% endblock resource-debug %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+{% endblock content-no-container %}
